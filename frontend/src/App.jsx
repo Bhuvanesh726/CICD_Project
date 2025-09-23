@@ -1,6 +1,5 @@
 import React from 'react';
-// IMPORT BrowserRouter
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -14,8 +13,8 @@ import Analytics from './pages/Analytics';
 
 function App() {
     return (
-        // WRAP EVERYTHING IN BrowserRouter AND ADD THE BASENAME PROP
-        <BrowserRouter basename="/eventapp">
+        // Return to using a simple fragment <> instead of the BrowserRouter
+        <>
             <Navbar />
             <main className="pt-16">
                 <Routes>
@@ -31,7 +30,7 @@ function App() {
                     <Route path="/event/:id/attendees" element={<PrivateRoute><EventAttendees /></PrivateRoute>} />
                 </Routes>
             </main>
-        </BrowserRouter>
+        </>
     );
 }
 
