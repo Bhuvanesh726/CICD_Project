@@ -1,8 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // CHANGED: Use the environment variable for the base URL
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: 'http://localhost:8081',
 });
 
 // This interceptor will now correctly find and attach the JWT token

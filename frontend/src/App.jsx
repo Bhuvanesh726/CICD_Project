@@ -7,16 +7,15 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import PrivateRoute from './components/PrivateRoute';
 import EventDetails from './pages/EventDetails';
-import Attendees from './pages/Attendees';
-import EventAttendees from './pages/EventAttendees';
+import Attendees from './pages/Attendees'; // <-- General Attendees Page
+import EventAttendees from './pages/EventAttendees'; // <-- Specific Event Attendees Page
 import Analytics from './pages/Analytics';
 
 function App() {
     return (
-        // Return to using a simple fragment <> instead of the BrowserRouter
         <>
             <Navbar />
-            <main className="pt-16">
+            <main className="pt-16"> {/* Assuming navbar height is h-16 (4rem) */}
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />

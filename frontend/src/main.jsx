@@ -1,15 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-// IMPORT BrowserRouter
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import App from './App.jsx';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        {/* ADD THE ROUTER WRAPPER HERE WITH THE BASENAME */}
-        <BrowserRouter basename="/eventapp">
-            <App />
-        </BrowserRouter>
-    </React.StrictMode>,
+        {/* Router must be the top-level component */}
+        <Router>
+            {/* AuthProvider goes inside Router */}
+            <AuthProvider>
+                <App />
+            </AuthProvider>
+        </Router>
+    </React.StrictMode>
 );
