@@ -37,7 +37,7 @@ public class PdfService {
             PdfWriter.getInstance(document, out);
             document.open();
 
-            // PDF Design Improvements
+            // PDF Design
             Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20, Font.NORMAL, Color.DARK_GRAY);
             Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.NORMAL, Color.WHITE);
             Font bodyFont = FontFactory.getFont(FontFactory.HELVETICA, 11, Font.NORMAL, Color.BLACK);
@@ -50,13 +50,15 @@ public class PdfService {
             title.setSpacingAfter(25);
             document.add(title);
 
-            // Create the table with 5 columns
-            PdfPTable table = new PdfPTable(5);
+            // CHANGED: Reverted to 4 columns
+            PdfPTable table = new PdfPTable(4);
             table.setWidthPercentage(100);
-            table.setWidths(new float[] { 1, 3, 3, 2, 4 });
+            // CHANGED: Adjusted widths for 4 columns
+            table.setWidths(new float[] { 1, 4, 5, 2 });
 
             // Add Table Headers
-            String[] headers = { "S.No", "Name", "Email", "Tickets", "Contact Number" };
+            // CHANGED: Removed "Contact Number"
+            String[] headers = { "S.No", "Name", "Email", "Tickets" };
             for (String headerTitle : headers) {
                 PdfPCell headerCell = new PdfPCell(new Phrase(headerTitle, headerFont));
                 headerCell.setBackgroundColor(headerBgColor);
@@ -90,6 +92,8 @@ public class PdfService {
                 cell.setBackgroundColor(bgColor);
                 cell.setPadding(8);
                 cell.setBorderWidth(0);
+                // ADDED: This allows long emails to wrap to the next line
+                cell.setNoWrap(false);
                 table.addCell(cell);
 
                 cell = new PdfPCell(new Phrase(String.valueOf(attendee.getTickets()), bodyFont));
@@ -99,12 +103,7 @@ public class PdfService {
                 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(cell);
 
-                // Placeholder for Contact Number - this will show "N/A"
-                cell = new PdfPCell(new Phrase("N/A", bodyFont));
-                cell.setBackgroundColor(bgColor);
-                cell.setPadding(8);
-                cell.setBorderWidth(0);
-                table.addCell(cell);
+                // REMOVED: The Contact Number cell has been removed.
             }
 
             document.add(table);
