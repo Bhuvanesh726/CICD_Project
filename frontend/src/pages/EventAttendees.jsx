@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft, Trash2, Download } from 'lucide-react'; // ADDED: Download icon
 
 const EventAttendees = () => {
     const { id } = useParams();
@@ -40,6 +40,30 @@ const EventAttendees = () => {
         }
     };
 
+    // ADDED: Function to handle the PDF download
+    const handleDownloadPdf = async () => {
+        try {
+            const response = await api.get(`/api/events/${id}/attendees/download`, {
+                responseType: 'blob', // Crucial for file downloads
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            // The filename is set by the backend, but this provides a fallback
+            link.setAttribute('download', `${event.title}_attendees.pdf`);
+            document.body.appendChild(link);
+            link.click();
+
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+        } catch (err) {
+            console.error("Failed to download PDF", err);
+            alert("Failed to download PDF. Please try again.");
+        }
+    };
+
     if (isLoading) return <div className="text-center p-10">Loading attendees...</div>;
     if (!event) return <div className="text-center p-10">Event not found.</div>;
 
@@ -49,8 +73,21 @@ const EventAttendees = () => {
                 <ArrowLeft size={18} className="mr-2" />
                 Back to Event Details
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Attendees for "{event.title}"</h1>
+
+            <div className="flex justify-between items-center mb-2">
+                <h1 className="text-3xl font-bold text-gray-900">Attendees for "{event.title}"</h1>
+                {/* ADDED: The download button */}
+                <button
+                    onClick={handleDownloadPdf}
+                    className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300"
+                >
+                    <Download size={18} className="mr-2" />
+                    Download PDF
+                </button>
+            </div>
+
             <p className="text-gray-600 mb-8">A total of {attendees.length} attendee(s) have registered.</p>
+
             <div className="bg-white shadow-md rounded-lg overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">

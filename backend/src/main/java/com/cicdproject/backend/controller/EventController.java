@@ -4,8 +4,12 @@ import com.cicdproject.backend.model.*;
 import com.cicdproject.backend.repository.AttendeeRepository;
 import com.cicdproject.backend.repository.EventRepository;
 import com.cicdproject.backend.repository.UserRepository;
+import com.cicdproject.backend.service.PdfService; // ADDED
+import jakarta.persistence.EntityNotFoundException; // ADDED
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders; // ADDED
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType; // ADDED
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +28,7 @@ public class EventController {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final AttendeeRepository attendeeRepository;
+    private final PdfService pdfService; // ADDED: Inject the PDF Service
 
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -32,6 +37,7 @@ public class EventController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
     }
 
+    // --- EXISTING METHODS (NO CHANGES) ---
     @GetMapping
     public List<EventDto> getUserEvents() {
         User user = getAuthenticatedUser();
@@ -67,12 +73,9 @@ public class EventController {
         newAttendee.setName(attendeeRequest.getName());
         newAttendee.setEmail(attendeeRequest.getEmail());
         newAttendee.setTickets(attendeeRequest.getTickets());
-
         newAttendee.setEvent(event);
         newAttendee.setRegisteredOn(LocalDateTime.now());
-
         Attendee savedAttendee = attendeeRepository.save(newAttendee);
-
         return new AttendeeDto(savedAttendee);
     }
 
@@ -109,7 +112,6 @@ public class EventController {
                     existingEvent.setCapacity(eventDetails.getCapacity());
                     existingEvent.setTicketPrice(eventDetails.getTicketPrice());
                     existingEvent.setStatus(eventDetails.getStatus());
-
                     Event updatedEvent = eventRepository.save(existingEvent);
                     return ResponseEntity.ok(new EventDto(updatedEvent));
                 })
@@ -128,11 +130,9 @@ public class EventController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // <-- NEW METHOD FOR DELETING AN ATTENDEE -->
     @DeleteMapping("/attendees/{attendeeId}")
     public ResponseEntity<Void> deleteAttendee(@PathVariable Long attendeeId) {
         User user = getAuthenticatedUser();
-
         return attendeeRepository.findById(attendeeId)
                 .filter(attendee -> attendee.getEvent().getUser().getId().equals(user.getId()))
                 .map(attendee -> {
@@ -140,5 +140,27 @@ public class EventController {
                     return ResponseEntity.noContent().<Void>build();
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // --- ADDED: NEW PDF DOWNLOAD ENDPOINT ---
+    @GetMapping("/{id}/attendees/download")
+    public ResponseEntity<byte[]> downloadAttendeesPdf(@PathVariable Long id) {
+        // Fetch the event to get its title
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + id));
+
+        // Generate the PDF content using the service
+        byte[] pdfContents = pdfService.generateAttendeesPdf(id);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+
+        // Create a safe filename from the event title
+        String filename = event.getTitle().replaceAll("[^a-zA-Z0-9.-]", "_") + ".pdf";
+
+        headers.setContentDispositionFormData(filename, filename);
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+        return new ResponseEntity<>(pdfContents, headers, HttpStatus.OK);
     }
 }
