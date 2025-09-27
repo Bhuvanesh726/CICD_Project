@@ -1,10 +1,9 @@
 package com.cicdproject.backend.controller;
 
-import com.cicdproject.backend.model.AuthResponse;
-import com.cicdproject.backend.model.RegisterRequest;
-import com.cicdproject.backend.model.User;
-import com.cicdproject.backend.model.UserResponse;
+import com.cicdproject.backend.model.*;
 import com.cicdproject.backend.service.AuthService;
+import lombok.Data; // Make sure this is imported if you created the DTOs
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,7 +19,6 @@ public class AuthController {
     @PostMapping("/register")
     public UserResponse register(@RequestBody RegisterRequest request) {
         User registeredUser = authService.register(request);
-        // Return the safe UserResponse DTO, not the User entity
         return new UserResponse(
                 registeredUser.getId(),
                 registeredUser.getName(),
@@ -29,6 +27,7 @@ public class AuthController {
     }
 
     // This is a simple DTO class for login requests
+    // Ensure it has both getters and setters
     public static class LoginRequest {
         private String email;
         private String password;
@@ -42,7 +41,7 @@ public class AuthController {
             this.email = email;
         }
 
-        public String getPassword() {
+        public String getPassword() { // This method was likely missing
             return password;
         }
 
@@ -53,7 +52,24 @@ public class AuthController {
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody LoginRequest req) {
-        // Return the AuthResponse object which contains the token
+        // This line will now work correctly
         return authService.login(req.getEmail(), req.getPassword());
+    }
+
+    // --- ENDPOINTS FOR PASSWORD RESET ---
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest emailRequest) {
+        authService.requestPasswordReset(emailRequest.getEmail());
+        return ResponseEntity.ok("If an account with that email exists, a reset OTP has been sent.");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        try {
+            authService.resetPassword(request.getEmail(), request.getOtp(), request.getNewPassword());
+            return ResponseEntity.ok("Password has been reset successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

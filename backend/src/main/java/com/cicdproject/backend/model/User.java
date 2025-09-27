@@ -2,6 +2,7 @@ package com.cicdproject.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.time.LocalDateTime; // ADDED
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +23,17 @@ public class User {
 
     private String role;
 
-    // --- THIS IS THE NEW PART ---
-    // This defines the other side of the relationship: One User has Many Events.
+    // --- ADDED FIELDS FOR PASSWORD RESET ---
+    @Column(name = "reset_otp")
+    private String resetOtp;
+
+    @Column(name = "otp_expiry_time")
+    private LocalDateTime otpExpiryTime;
+    // ------------------------------------
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore // This is crucial to prevent infinite loops when sending data as JSON
+    @JsonIgnore
     private List<Event> events = new ArrayList<>();
-    // ----------------------------
 
     // Constructors
     public User() {
@@ -40,7 +46,7 @@ public class User {
         this.role = role;
     }
 
-    // Getters & setters... (rest of the file is the same)
+    // Getters & setters...
     public Long getId() {
         return id;
     }
@@ -81,12 +87,28 @@ public class User {
         this.role = role;
     }
 
-    // Add Getter and Setter for the new events list
     public List<Event> getEvents() {
         return events;
     }
 
     public void setEvents(List<Event> events) {
         this.events = events;
+    }
+
+    // Getters and setters for new fields
+    public String getResetOtp() {
+        return resetOtp;
+    }
+
+    public void setResetOtp(String resetOtp) {
+        this.resetOtp = resetOtp;
+    }
+
+    public LocalDateTime getOtpExpiryTime() {
+        return otpExpiryTime;
+    }
+
+    public void setOtpExpiryTime(LocalDateTime otpExpiryTime) {
+        this.otpExpiryTime = otpExpiryTime;
     }
 }
