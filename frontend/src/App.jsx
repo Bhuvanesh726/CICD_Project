@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext'; // ADDED
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -11,11 +11,11 @@ import EventDetails from './pages/EventDetails';
 import Attendees from './pages/Attendees';
 import EventAttendees from './pages/EventAttendees';
 import Analytics from './pages/Analytics';
-import ManageUsers from './pages/ManageUsers';
-import ForgotPassword from './pages/ForgotPassword'; // ADDED
+import ManageUsers from './pages/ManageUsers'; // ADDED
 
 function App() {
     return (
+        // ADDED: Wrap everything in the AuthProvider
         <AuthProvider>
             <Navbar />
             <main className="pt-16">
@@ -23,7 +23,6 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} /> {/* ADDED */}
 
                     {/* Protected Routes */}
                     <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
@@ -31,6 +30,8 @@ function App() {
                     <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
                     <Route path="/event/:id" element={<PrivateRoute><EventDetails /></PrivateRoute>} />
                     <Route path="/event/:id/attendees" element={<PrivateRoute><EventAttendees /></PrivateRoute>} />
+
+                    {/* ADDED: New admin-only route */}
                     <Route path="/manage-users" element={<PrivateRoute><ManageUsers /></PrivateRoute>} />
                 </Routes>
             </main>

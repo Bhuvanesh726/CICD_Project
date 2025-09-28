@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 const ManageUsers = () => {
     const [users, setUsers] = useState([]);
     const [error, setError] = useState('');
-    const { user: currentUser } = useAuth(); // Get the currently logged-in user
+    const { user: currentUser } = useAuth();
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -15,6 +15,7 @@ const ManageUsers = () => {
                 setUsers(response.data);
             } catch (err) {
                 setError('Failed to fetch users. You may not have permission.');
+                console.error(err);
             }
         };
         fetchUsers();
@@ -26,6 +27,7 @@ const ManageUsers = () => {
                 await api.delete(`/api/admin/users/${userId}`);
                 setUsers(currentUsers => currentUsers.filter(u => u.id !== userId));
             } catch (error) {
+                console.error('Failed to delete user:', error);
                 alert('Failed to delete user. You cannot delete your own account.');
             }
         }

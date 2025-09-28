@@ -11,15 +11,12 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         try {
-            // Check for user data in localStorage on app load
             const storedUser = localStorage.getItem('user');
             if (storedUser) {
-                // If user data exists, parse it and set it as the current user
                 setUser(JSON.parse(storedUser));
             }
         } catch (error) {
             console.error("Failed to parse user from localStorage", error);
-            // If parsing fails, clear the broken data
             localStorage.removeItem('user');
         }
         setLoading(false);
@@ -39,11 +36,8 @@ export const AuthProvider = ({ children }) => {
     const login = async (credentials) => {
         try {
             const response = await api.post('/api/auth/login', credentials);
-            const userData = response.data; // The response now contains { token, name, email, role }
-
-            // Store the entire user object (including name) as a JSON string
+            const userData = response.data;
             localStorage.setItem('user', JSON.stringify(userData));
-
             setUser(userData);
             console.log('Login successful:', userData);
             navigate('/dashboard');
@@ -54,14 +48,19 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        // Remove the entire user object from localStorage
         localStorage.removeItem('user');
         setUser(null);
         navigate('/');
     };
 
+    // ADDED: A helper boolean to easily check if the user is an admin
+    const isAdmin = user && user.role === 'ROLE_ADMIN';
+
+    // ADDED: Pass the isAdmin flag in the context value
+    const contextValue = { user, loading, signup, login, logout, isAuthenticated: !!user, isAdmin };
+
     return (
-        <AuthContext.Provider value={{ user, loading, signup, login, logout }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );

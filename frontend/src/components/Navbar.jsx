@@ -1,15 +1,11 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, LayoutDashboard, Calendar, Users, BarChart3 } from 'lucide-react';
+import { LogOut, UserCog } from 'lucide-react'; // ADDED: UserCog icon
 
 const Navbar = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, isAdmin } = useAuth(); // CHANGED: Get isAdmin from context
 
-    // Safely get the user's first name.
-    // user?.name -> only access .name if user is not null/undefined
-    // .split(' ')[0] -> get the first part
-    // || '' -> if anything fails, default to an empty string
     const firstName = user?.name?.split(' ')[0] || '';
 
     return (
@@ -28,6 +24,14 @@ const Navbar = () => {
                                 <NavLink to="/dashboard" className={({ isActive }) => isActive ? "text-blue-600 font-semibold" : "text-gray-600 hover:text-blue-600"}>Dashboard</NavLink>
                                 <NavLink to="/attendees" className={({ isActive }) => isActive ? "text-blue-600 font-semibold" : "text-gray-600 hover:text-blue-600"}>Attendees</NavLink>
                                 <NavLink to="/analytics" className={({ isActive }) => isActive ? "text-blue-600 font-semibold" : "text-gray-600 hover:text-blue-600"}>Analytics</NavLink>
+
+                                {/* ADDED: Admin-only link */}
+                                {isAdmin && (
+                                    <NavLink to="/manage-users" className={({ isActive }) => `inline-flex items-center ${isActive ? "text-blue-600 font-semibold" : "text-gray-600 hover:text-blue-600"}`}>
+                                        <UserCog size={16} className="mr-2" />
+                                        Manage Users
+                                    </NavLink>
+                                )}
                             </>
                         )}
                     </div>
