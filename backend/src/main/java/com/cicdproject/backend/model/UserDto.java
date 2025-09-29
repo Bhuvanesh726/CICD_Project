@@ -1,9 +1,8 @@
-// File: backend/src/main/java/com/cicdproject/backend/model/UserDto.java
 package com.cicdproject.backend.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 @Data
 @NoArgsConstructor
